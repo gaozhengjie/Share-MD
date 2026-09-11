@@ -1,0 +1,9 @@
+{
+  "id": "share-md",
+  "name": "Share MD",
+  "version": "0.1.0",
+  "minAppVersion": "1.5.0",
+  "description": "Publish Obsidian Markdown notes to a self-hosted share page.",
+  "author": "Zhengjie Gao",
+  "isDesktopOnly": true
+}
