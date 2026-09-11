@@ -1,12 +1,11 @@
 # Share MD
 
-Share your Obsidian notes to a self-hosted web page with one click.
+Share your Obsidian notes to a web page with one click.
 
 ## Features
 
 - **One-click sharing** - Publish notes via toolbar button or right-click menu
 - **Image support** - Automatically uploads images referenced in your notes
-- **Theme sync** - Applies your Obsidian theme to the shared page
 - **Dark mode** - Respects your Obsidian color scheme
 - **Expiration** - Set 1-day or 7-day expiration for shared links
 - **Update support** - Sync changes to existing shares without changing the URL
@@ -28,16 +27,17 @@ Share your Obsidian notes to a self-hosted web page with one click.
 
 ## Setup
 
-### 1. Set Up Your Server
-
-You need a self-hosted server to use this plugin. See the [server setup guide](https://github.com/gaozhengjie/Share-MD/blob/main/SETUP.md) for instructions.
-
-### 2. Configure the Plugin
-
 1. Open Settings → Share MD
-2. Enter your **API URL** (e.g., `https://share.yourdomain.com`)
-3. Enter your **API Token** (generated on the server)
+2. Set **API URL** to: `https://sharemd.31ai.tech`
+3. Enter your **API Token** (contact author to obtain)
 4. Set your preferred **Default Expiry** (1 or 7 days)
+
+### Get API Token
+
+API Token is currently not available for public registration. Please contact the author to obtain your token:
+
+- **WeChat**: 17761216291
+- **Email**: gaozhengj@foxmail.com
 
 ## Usage
 
@@ -61,15 +61,13 @@ Open the command palette (`Ctrl/Cmd + P`) and search for "Share MD":
 
 ## Privacy
 
-- Notes are only uploaded to your own self-hosted server
-- No data is sent to third-party services
+- Notes are only uploaded to the Share MD server
 - API tokens are stored locally in Obsidian
 - Shared links are private and not indexed by search engines
 
 ## Support
 
 - [Report Issues](https://github.com/gaozhengjie/Share-MD/issues)
-- [Server Setup Guide](https://github.com/gaozhengjie/Share-MD/blob/main/SETUP.md)
 
 ## License
 
