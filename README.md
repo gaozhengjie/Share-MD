@@ -1,12 +1,12 @@
 # Share MD
 
-Share your Obsidian notes to a web page with one click.
+Share your notes to a web page with one click.
 
 ## Features
 
 - **One-click sharing** - Publish notes via toolbar button or right-click menu
 - **Image support** - Automatically uploads images referenced in your notes
-- **Dark mode** - Respects your Obsidian color scheme
+- **Dark mode** - Respects your color scheme
 - **Expiration** - Set 1-day or 7-day expiration for shared links
 - **Update support** - Sync changes to existing shares without changing the URL
 
