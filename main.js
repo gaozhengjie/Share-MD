@@ -28,7 +28,6 @@ var import_obsidian4 = require("obsidian");
 // src/settings.ts
 var import_obsidian = require("obsidian");
 var DEFAULT_SETTINGS = {
-  apiBaseUrl: "",
   apiToken: ""
 };
 var ShareSettingTab = class extends import_obsidian.PluginSettingTab {
@@ -40,10 +39,6 @@ var ShareSettingTab = class extends import_obsidian.PluginSettingTab {
     const { containerEl } = this;
     containerEl.empty();
     containerEl.createEl("h2", { text: "Share  MD" });
-    new import_obsidian.Setting(containerEl).setName("API Base URL").setDesc("\u4F8B\u5982 https://share.example.com").addText((text) => text.setPlaceholder("https://share.example.com").setValue(this.plugin.settings.apiBaseUrl).onChange(async (value) => {
-      this.plugin.settings.apiBaseUrl = value.trim().replace(/\/$/, "");
-      await this.plugin.saveSettings();
-    }));
     new import_obsidian.Setting(containerEl).setName("API Token").setDesc("\u670D\u52A1\u7AEF\u751F\u6210\u7684\u4E2A\u4EBA Token\uFF0C\u4EC5\u4FDD\u5B58\u5728\u672C\u5730\u63D2\u4EF6\u8BBE\u7F6E\u4E2D\u3002").addText((text) => text.setPlaceholder("os_...").setValue(this.plugin.settings.apiToken).onChange(async (value) => {
       this.plugin.settings.apiToken = value.trim();
       await this.plugin.saveSettings();
@@ -88,6 +83,7 @@ var import_obsidian3 = require("obsidian");
 
 // src/api-client.ts
 var import_obsidian2 = require("obsidian");
+var API_BASE_URL = "https://sharemd.dawnclarity.press";
 function parseError(error) {
   const message = error?.message || "request_failed";
   if (message.includes("share_expired")) return new Error("share_expired");
@@ -127,7 +123,7 @@ var ShareApiClient = class {
     this.settings = settings;
   }
   ensureConfigured() {
-    if (!this.settings.apiBaseUrl || !this.settings.apiToken) throw new Error("not_configured");
+    if (!this.settings.apiToken) throw new Error("not_configured");
   }
   // requestUrl 走 Obsidian 的 Node 网络栈：不受浏览器 CORS/系统代理影响
   async request(method, url, body) {
@@ -150,7 +146,7 @@ var ShareApiClient = class {
     this.ensureConfigured();
     const body = documentToJson(document2);
     try {
-      return await this.request("POST", `${this.settings.apiBaseUrl}/api/v1/shares/json`, body);
+      return await this.request("POST", `${API_BASE_URL}/api/v1/shares/json`, body);
     } catch (error) {
       throw parseError(error);
     }
@@ -159,7 +155,7 @@ var ShareApiClient = class {
     this.ensureConfigured();
     const body = documentToJson(document2);
     try {
-      return await this.request("PUT", `${this.settings.apiBaseUrl}/api/v1/shares/${encodeURIComponent(mapping.publicId)}`, body);
+      return await this.request("PUT", `${API_BASE_URL}/api/v1/shares/${encodeURIComponent(mapping.publicId)}`, body);
     } catch (error) {
       throw parseError(error);
     }
@@ -338,6 +334,41 @@ async function collectDocument(app, file) {
 }
 
 // src/publish-controller.ts
+var ShareSuccessModal = class extends import_obsidian3.Modal {
+  constructor(app, heading, url) {
+    super(app);
+    this.heading = heading;
+    this.url = url;
+  }
+  onOpen() {
+    this.titleEl.setText(this.heading);
+    this.contentEl.createEl("p", { text: "\u94FE\u63A5\u5DF2\u751F\u6210\uFF1A", cls: "muted" });
+    const input = this.contentEl.createEl("input", { type: "text", value: this.url });
+    input.readOnly = true;
+    input.style.width = "100%";
+    input.addEventListener("focus", () => input.select());
+    input.select();
+    const actions = this.contentEl.createDiv();
+    actions.style.display = "flex";
+    actions.style.gap = "8px";
+    actions.style.marginTop = "14px";
+    const copyBtn = actions.createEl("button", { text: "\u590D\u5236", cls: "mod-cta" });
+    copyBtn.addEventListener("click", async () => {
+      await navigator.clipboard?.writeText(this.url).catch(() => void 0);
+      copyBtn.textContent = "\u5DF2\u590D\u5236";
+      setTimeout(() => {
+        copyBtn.textContent = "\u590D\u5236";
+      }, 1500);
+    });
+    const openBtn = actions.createEl("button", { text: "\u6253\u5F00" });
+    openBtn.addEventListener("click", () => window.open(this.url, "_blank"));
+    const closeBtn = actions.createEl("button", { text: "\u5173\u95ED" });
+    closeBtn.addEventListener("click", () => this.close());
+  }
+  onClose() {
+    this.contentEl.empty();
+  }
+};
 var PublishController = class {
   constructor(app, plugin, settings, mappings) {
     this.app = app;
@@ -359,8 +390,7 @@ var PublishController = class {
       await this.mappings.set(file.path, { publicId: result.publicId, url: result.url, expiresAt: result.expiresAt });
       progress.hide();
       await navigator.clipboard?.writeText(result.url).catch(() => void 0);
-      new import_obsidian3.Notice(`\u53D1\u5E03\u6210\u529F\uFF0C\u94FE\u63A5\u5DF2\u590D\u5236\uFF1A
-${result.url}`, 1e4);
+      new ShareSuccessModal(this.app, "\u53D1\u5E03\u6210\u529F", result.url).open();
     } catch (error) {
       progress.hide();
       this.notifyError(error);
@@ -387,7 +417,7 @@ ${result.url}`, 1e4);
       const result = await new ShareApiClient(this.settings()).sync(document2, mapping);
       await this.mappings.set(file.path, { publicId: result.publicId, url: result.url, expiresAt: result.expiresAt });
       progress.hide();
-      new import_obsidian3.Notice(`\u540C\u6B65\u6210\u529F\uFF1A${result.url}`, 8e3);
+      new ShareSuccessModal(this.app, "\u540C\u6B65\u6210\u529F", result.url).open();
     } catch (error) {
       progress.hide();
       this.notifyError(error);
