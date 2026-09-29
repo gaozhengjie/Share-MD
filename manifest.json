@@ -1,7 +1,7 @@
 {
   "id": "share-md",
   "name": "Share MD",
-  "version": "0.5.0",
+  "version": "0.5.1",
   "minAppVersion": "1.5.0",
   "description": "Publish Markdown notes to a self-hosted share page.",
   "author": "Zhengjie Gao",
